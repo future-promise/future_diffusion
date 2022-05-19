@@ -631,43 +631,9 @@ normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.2686295
 lpips_model = lpips.LPIPS(net='vgg').to(device)
 
 """# 3. Settings"""
-
-#@markdown ####**Basic Settings:**
-batch_name = 'TimeToDisco' #@param{type: 'string'}
-steps = 250 #@param [25,50,100,150,250,500,1000]{type: 'raw', allow-input: true}
-width_height = [512, 512]#@param{type: 'raw'}
-clip_guidance_scale = 5000 #@param{type: 'number'}
-tv_scale =  0#@param{type: 'number'}
-range_scale =   150#@param{type: 'number'}
-sat_scale =   0#@param{type: 'number'}
-cutn_batches =   1#@param{type: 'number'}
-skip_augs = False#@param{type: 'boolean'}
-
-#@markdown ---
-
-#@markdown ####**Init Settings:**
-init_image = "/content/drive/MyDrive/AI/Disco_Diffusion/init_images/image.png" #@param{type: 'string'}
-init_scale = 1000 #@param{type: 'integer'}
-skip_steps = 125 #@param{type: 'integer'}
-#@markdown *Make sure you set skip_steps to ~50% of your steps if you want to use an init image.*
-
-#Get corrected sizes
-side_x = (width_height[0]//64)*64;
-side_y = (width_height[1]//64)*64;
-if side_x != width_height[0] or side_y != width_height[1]:
-    print(f'Changing output size to {side_x}x{side_y}. Dimensions must by multiples of 64.')
-
-#Update Model Settings
-timestep_respacing = f'ddim{steps}'
-diffusion_steps = (1000//steps)*steps if steps < 1000 else steps
-
 #Make folder for batch
 batchFolder = f'{outDirPath}/{batch_name}'
 createPath(batchFolder)
 
 """### Animation Settings"""
 from future_diffusion.DiscoAnimate import *
-
-"""### Extra Settings
- Partial Saves, Advanced Settings, Cutn Scheduling
-"""
