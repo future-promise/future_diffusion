@@ -1,36 +1,19 @@
 from future_diffusion.disco import * 
 import subprocess
 import torch
-from dataclasses import dataclass
-from functools import partial
 import cv2
-import pandas as pd
 import gc
-import io
 import math
-import timm
-from IPython import display
-import lpips
-from PIL import Image, ImageOps
 import requests
 from glob import glob
-import json
 from types import SimpleNamespace
-from torch import nn
 from torch.nn import functional as F
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from tqdm.notebook import tqdm
 from CLIP import clip
-from resize_right import resize
-from guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
-from datetime import datetime
-import numpy as np
-import matplotlib.pyplot as plt
+from guided_diffusion.script_util import create_model_and_diffusion
 import random
-from ipywidgets import Output
-import hashlib
-from functools import partial
 if is_colab:
     os.chdir('/content')
     from google.colab import files
@@ -38,10 +21,7 @@ else:
     os.chdir(f'{PROJECT_DIR}')
 from IPython.display import Image as ipyimg
 from numpy import asarray
-from einops import rearrange, repeat
-import torch, torchvision
-import time
-from omegaconf import OmegaConf
+import torch
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 import GPUtil

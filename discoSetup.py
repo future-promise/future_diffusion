@@ -186,12 +186,9 @@ from tqdm.notebook import tqdm
 from CLIP import clip
 from resize_right import resize
 from guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
-from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
 import random
-from ipywidgets import Output
-import hashlib
 from functools import partial
 if is_colab:
     os.chdir('/content')
@@ -200,10 +197,7 @@ else:
     os.chdir(f'{PROJECT_DIR}')
 from IPython.display import Image as ipyimg
 from numpy import asarray
-from einops import rearrange, repeat
-import torch, torchvision
-import time
-from omegaconf import OmegaConf
+import torch
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 

@@ -1,7 +1,6 @@
 #@title 1.1 Check GPU Status
 from future_diffusion.discoSetup import * 
 
-import subprocess
 import torch
 from dataclasses import dataclass
 from functools import partial
@@ -10,14 +9,11 @@ import pandas as pd
 import gc
 import io
 import math
-import timm
 from IPython import display
 import lpips
 from PIL import Image, ImageOps
 import requests
-from glob import glob
 import json
-from types import SimpleNamespace
 from torch import nn
 from torch.nn import functional as F
 import torchvision.transforms as T
@@ -25,7 +21,6 @@ import torchvision.transforms.functional as TF
 from tqdm.notebook import tqdm
 from CLIP import clip
 from resize_right import resize
-from guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
 from datetime import datetime
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,17 +28,7 @@ import random
 from ipywidgets import Output
 import hashlib
 from functools import partial
-if is_colab:
-    os.chdir('/content')
-    from google.colab import files
-else:
-    os.chdir(f'{PROJECT_DIR}')
-from IPython.display import Image as ipyimg
-from numpy import asarray
-from einops import rearrange, repeat
-import torch, torchvision
-import time
-from omegaconf import OmegaConf
+import torch
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -1064,47 +1049,6 @@ def download_models(diffusion_model,use_secondary_model,fallback=False):
 
 download_models(diffusion_model,use_secondary_model)
 
-model_config = model_and_diffusion_defaults()
-if diffusion_model == '512x512_diffusion_uncond_finetune_008100':
-    model_config.update({
-        'attention_resolutions': '32, 16, 8',
-        'class_cond': False,
-        'diffusion_steps': 1000, #No need to edit this, it is taken care of later.
-        'rescale_timesteps': True,
-        'timestep_respacing': 250, #No need to edit this, it is taken care of later.
-        'image_size': 512,
-        'learn_sigma': True,
-        'noise_schedule': 'linear',
-        'num_channels': 256,
-        'num_head_channels': 64,
-        'num_res_blocks': 2,
-        'resblock_updown': True,
-        'use_checkpoint': use_checkpoint,
-        'use_fp16': not useCPU,
-        'use_scale_shift_norm': True,
-    })
-elif diffusion_model == '256x256_diffusion_uncond':
-    model_config.update({
-        'attention_resolutions': '32, 16, 8',
-        'class_cond': False,
-        'diffusion_steps': 1000, #No need to edit this, it is taken care of later.
-        'rescale_timesteps': True,
-        'timestep_respacing': 250, #No need to edit this, it is taken care of later.
-        'image_size': 256,
-        'learn_sigma': True,
-        'noise_schedule': 'linear',
-        'num_channels': 256,
-        'num_head_channels': 64,
-        'num_res_blocks': 2,
-        'resblock_updown': True,
-        'use_checkpoint': use_checkpoint,
-        'use_fp16': not useCPU,
-        'use_scale_shift_norm': True,
-    })
-
-model_default = model_config['image_size']
-
-
 
 if use_secondary_model:
     secondary_model = SecondaryDiffusionImageNet2()
@@ -1154,10 +1098,6 @@ if side_x != width_height[0] or side_y != width_height[1]:
 #Update Model Settings
 timestep_respacing = f'ddim{steps}'
 diffusion_steps = (1000//steps)*steps if steps < 1000 else steps
-model_config.update({
-    'timestep_respacing': timestep_respacing,
-    'diffusion_steps': diffusion_steps,
-})
 
 #Make folder for batch
 batchFolder = f'{outDirPath}/{batch_name}'
