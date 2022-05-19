@@ -12,7 +12,7 @@ import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from tqdm.notebook import tqdm
 from CLIP import clip
-from guided_diffusion.script_util import create_model_and_diffusion
+from guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
 import random
 if is_colab:
     os.chdir('/content')
@@ -35,7 +35,7 @@ class DiscoModel():
         self.intermediates_in_subfolder = True #@param{type: 'boolean'}
 
         self.diffusion_model = "512x512_diffusion_uncond_finetune_008100"
-        self.model_config = model_config
+        self.model_config = model_and_diffusion_defaults()
         self.model_config.update({
             'attention_resolutions': '32, 16, 8',
             'class_cond': False,
