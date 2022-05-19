@@ -13,7 +13,7 @@ else:
     print(nvidiasmi_ecc_note)
 
 #@title 1.2 Prepare Folders
-import subprocess, os, sys, ipykernel
+import subprocess, os, sys
 
 def gitclone(url):
     res = subprocess.run(['git', 'clone', url], stdout=subprocess.PIPE).stdout.decode('utf-8')
