@@ -1,4 +1,4 @@
-from disco import * 
+from future_diffusion.disco import * 
 import subprocess
 import torch
 from dataclasses import dataclass
