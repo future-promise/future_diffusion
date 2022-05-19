@@ -230,7 +230,7 @@ def do_run(args):
           cur_t = args.diffusion.num_timesteps - skip_steps - 1
           total_steps = cur_t
 
-          if perlin_init:
+          if args.perlin_init:
               init = regen_perlin()
 
           if args.diffusion_sampling_mode == 'ddim':
