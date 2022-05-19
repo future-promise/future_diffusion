@@ -30,6 +30,7 @@ nvmlInit()
 
 
 def getClipModels(args):
+    print('cip models', args)
     clip_models = []
     if args.ViTB32 is True: clip_models.append(clip.load('ViT-B/32', jit=False)[0].eval().requires_grad_(False).to(device)) 
     if args.ViTB16 is True: clip_models.append(clip.load('ViT-B/16', jit=False)[0].eval().requires_grad_(False).to(device) ) 
