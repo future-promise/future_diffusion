@@ -267,7 +267,7 @@ def do_run(args):
             cur_t -= 1
             intermediateStep = False
             if args.steps_per_checkpoint is not None:
-                if j % steps_per_checkpoint == 0 and j > 0:
+                if j % args.steps_per_checkpoint == 0 and j > 0:
                   intermediateStep = True
             elif j in args.intermediate_saves:
               intermediateStep = True
