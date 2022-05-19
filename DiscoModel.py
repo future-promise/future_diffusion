@@ -305,6 +305,7 @@ class DiscoModel():
           'id' : id,
           'model' : self.model,
           'diffusion' : self.diffusion,
+          'clip_models': self.clip_models,
           'prompts_series':split_prompts(self.text_prompts) if self.text_prompts else None,
           'image_prompts_series':split_prompts(image_prompts) if image_prompts else None,
           'seed': self.seed,
