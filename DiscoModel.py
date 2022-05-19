@@ -9,6 +9,7 @@ from glob import glob
 from types import SimpleNamespace
 from torch.nn import functional as F
 import torchvision.transforms as T
+from CLIP import clip
 import torchvision.transforms.functional as TF
 from guided_diffusion.script_util import create_model_and_diffusion, model_and_diffusion_defaults
 import random
@@ -27,11 +28,27 @@ from pynvml import *
 
 nvmlInit()
 
+
+def getClipModels(args):
+    clip_models = []
+    if args.ViTB32 is True: clip_models.append(clip.load('ViT-B/32', jit=False)[0].eval().requires_grad_(False).to(device)) 
+    if args.ViTB16 is True: clip_models.append(clip.load('ViT-B/16', jit=False)[0].eval().requires_grad_(False).to(device) ) 
+    if args.ViTL14 is True: clip_models.append(clip.load('ViT-L/14', jit=False)[0].eval().requires_grad_(False).to(device) ) 
+    if args.RN50 is True: clip_models.append(clip.load('RN50', jit=False)[0].eval().requires_grad_(False).to(device))
+    if args.RN50x4 is True: clip_models.append(clip.load('RN50x4', jit=False)[0].eval().requires_grad_(False).to(device)) 
+    if args.RN50x16 is True: clip_models.append(clip.load('RN50x16', jit=False)[0].eval().requires_grad_(False).to(device)) 
+    if args.RN50x64 is True: clip_models.append(clip.load('RN50x64', jit=False)[0].eval().requires_grad_(False).to(device)) 
+    if args.RN101 is True: clip_models.append(clip.load('RN101', jit=False)[0].eval().requires_grad_(False).to(device)) 
+    
+    return clip_models
+
 class DiscoModel():
     def __init__(self):
         self.intermediate_saves = 0#@param{type: 'raw'}
         self.intermediates_in_subfolder = True #@param{type: 'boolean'}
-
+        self.diffusion_sampling_mode = 'ddim'
+        self.use_secondary_model = True
+        self.use_checkpoint = True
         self.diffusion_model = "512x512_diffusion_uncond_finetune_008100"
         self.model_config = model_and_diffusion_defaults()
         self.model_config.update({
@@ -51,6 +68,20 @@ class DiscoModel():
             'use_fp16': True,
             'use_scale_shift_norm': True,
         })
+        
+        self.models = {
+            'ViTB32': True,
+            'ViTB16': False,
+            'ViTL14': False,
+            'RN101': False,
+            'RN50': False,
+            'RN50x4': False,
+            'RN50x16': False,
+            'RN50x64': False
+        } 
+
+        self.clip_models = getClipModels(self.models)
+
 
 
         model_default = self.model_config['image_size']
