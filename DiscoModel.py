@@ -70,7 +70,7 @@ class DiscoModel():
             'use_scale_shift_norm': True,
         })
         
-        self.models = SimpleNamespace({
+        self.models = {
             'ViTB32': True,
             'ViTB16': False,
             'ViTL14': False,
@@ -79,7 +79,8 @@ class DiscoModel():
             'RN50x4': False,
             'RN50x16': False,
             'RN50x64': False
-        })
+        }
+        self.models = SimpleNamespace(**self.models)
 
         self.clip_models = getClipModels(self.models)
 
