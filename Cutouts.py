@@ -1,4 +1,4 @@
-from future_diffusion.discoSetup import * 
+from future_diffusion.DiscoSetup import * 
 
 import torch
 

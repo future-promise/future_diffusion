@@ -1,5 +1,5 @@
 #@title 1.1 Check GPU Status
-from future_diffusion.discoSetup import * 
+from future_diffusion.DiscoSetup import * 
 
 import torch
 from dataclasses import dataclass

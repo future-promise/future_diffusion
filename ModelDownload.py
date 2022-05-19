@@ -1,5 +1,5 @@
 import hashlib
-from future_diffusion.discoSetup import wget
+from future_diffusion.DiscoSetup import wget
 import os
 
 def download_models(model_path, diffusion_model,use_secondary_model,fallback=False, check_model_SHA = False):
