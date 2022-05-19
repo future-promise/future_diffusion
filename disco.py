@@ -32,7 +32,7 @@ import torch
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
-from DiscoUtils import *
+from future_diffusion.DiscoUtils import *
 
 class MakeCutouts(nn.Module):
     def __init__(self, cut_size, cutn, skip_augs=False):
