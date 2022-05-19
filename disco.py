@@ -1,4 +1,6 @@
 #@title 1.1 Check GPU Status
+from future_diffusion.discoSetup import * 
+
 import subprocess
 import torch
 from dataclasses import dataclass
@@ -44,7 +46,6 @@ import time
 from omegaconf import OmegaConf
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
-from future_diffusion.discoSetup import * 
 
 
 #@title ### 1.4 Define Midas functions
