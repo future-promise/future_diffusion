@@ -237,26 +237,26 @@ def do_run(args):
               samples = sample_fn(
                   args.model,
                   (args.batch_size, 3, args.side_y, args.side_x),
-                  clip_denoised=clip_denoised,
+                  clip_denoised=args.clip_denoised,
                   model_kwargs={},
                   cond_fn=cond_fn,
                   progress=True,
                   skip_timesteps=skip_steps,
                   init_image=init,
-                  randomize_class=randomize_class,
-                  eta=eta,
+                  randomize_class=args.randomize_class,
+                  eta=args.eta,
               )
           else:
               samples = sample_fn(
                   args.model,
                   (args.batch_size, 3, args.side_y, args.side_x),
-                  clip_denoised=clip_denoised,
+                  clip_denoised=args.clip_denoised,
                   model_kwargs={},
                   cond_fn=cond_fn,
                   progress=True,
                   skip_timesteps=skip_steps,
                   init_image=init,
-                  randomize_class=randomize_class,
+                  randomize_class=args.randomize_class,
                   order=2,
               )
           
