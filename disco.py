@@ -187,14 +187,14 @@ def do_run(args):
                     dists = dists.view([args.cut_overview[1000-t_int]+args.cut_innercut[1000-t_int], n, -1])
                     losses = dists.mul(model_stat["weights"]).sum(2).mean(0)
                     loss_values.append(losses.sum().item()) # log loss, probably shouldn't do per cutn_batch
-                    x_in_grad += torch.autograd.grad(losses.sum() * clip_guidance_scale, x_in)[0] / cutn_batches
+                    x_in_grad += torch.autograd.grad(losses.sum() * args.clip_guidance_scale, x_in)[0] / args.cutn_batches
               tv_losses = tv_loss(x_in)
               if use_secondary_model is True:
                 range_losses = range_loss(out)
               else:
                 range_losses = range_loss(out['pred_xstart'])
               sat_losses = torch.abs(x_in - x_in.clamp(min=-1,max=1)).mean()
-              loss = tv_losses.sum() * tv_scale + range_losses.sum() * range_scale + sat_losses.sum() * sat_scale
+              loss = tv_losses.sum() * args.tv_scale + range_losses.sum() * args.range_scale + sat_losses.sum() * args.sat_scale
               if init is not None and args.init_scale:
                   init_losses = lpips_model(x_in, init)
                   loss = loss + init_losses.sum() * args.init_scale
@@ -280,7 +280,7 @@ def do_run(args):
                       if args.n_batches > 0:
                         #if intermediates are saved to the subfolder, don't append a step or percentage to the name
                         if cur_t == -1 and args.intermediates_in_subfolder is True:
-                          save_num = f'{frame_num:04}' if animation_mode != "None" else i
+                          save_num = f'{frame_num:04}' if args.animation_mode != "None" else i
                           filename = f'{args.batch_name}({args.batchNum})_{save_num}.png'
                         else:
                           #If we're working with percentages, append it
