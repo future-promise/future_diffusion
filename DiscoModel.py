@@ -27,7 +27,7 @@ import GPUtil
 from pynvml import *
 
 nvmlInit()
-
+# SimpleNamespace(**self.args)
 
 def getClipModels(args):
     print('cip models', args)
@@ -70,7 +70,7 @@ class DiscoModel():
             'use_scale_shift_norm': True,
         })
         
-        self.models = {
+        self.models = SimpleNamespace({
             'ViTB32': True,
             'ViTB16': False,
             'ViTL14': False,
@@ -79,7 +79,7 @@ class DiscoModel():
             'RN50x4': False,
             'RN50x16': False,
             'RN50x64': False
-        } 
+        })
 
         self.clip_models = getClipModels(self.models)
 
