@@ -2,16 +2,11 @@
 from future_diffusion.DiscoSetup import * 
 
 import torch
-from dataclasses import dataclass
-from functools import partial
 import gc
-import io
 import math
 from IPython import display
 import lpips
 from PIL import Image
-from torch import nn
-from torch.nn import functional as F
 import torchvision.transforms as T
 import torchvision.transforms.functional as TF
 from tqdm.notebook import tqdm
@@ -21,7 +16,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import random
 from ipywidgets import Output
-from functools import partial
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
@@ -35,7 +29,7 @@ TRANSLATION_SCALE = 1.0/200.0
 
 def do_run(args):
   seed = args.seed
-  print(range(args.start_frame, args.max_frames))
+  print('range boi', range(args.start_frame, args.max_frames))
 
   for frame_num in range(args.start_frame, args.max_frames):
       if stop_on_next_loop:
@@ -51,7 +45,6 @@ def do_run(args):
           init_image = None
         else:
           init_image = args.init_image
-        init_scale = args.init_scale
         skip_steps = args.skip_steps
 
 
@@ -292,7 +285,8 @@ def do_run(args):
                             image.save(f'{batchFolder}/{filename}')
                       if cur_t == -1:
                         if frame_num == 0:
-                          save_settings(args)
+                          pass
+                          # save_settings(args)
                         if args.animation_mode != "None":
                           image.save('prevFrame.png')
                         image.save(f'{batchFolder}/{filename}')
