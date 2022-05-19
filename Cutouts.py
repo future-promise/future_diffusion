@@ -1,6 +1,6 @@
 #@title 1.1 Check GPU Status
 from future_diffusion.discoSetup import * 
-from future_diffusion.DiscoUtils import * # remove ?
+# from future_diffusion.DiscoUtils import * # remove ?
 
 import torch
 
