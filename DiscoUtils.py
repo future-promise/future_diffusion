@@ -1,4 +1,5 @@
 from future_diffusion.discoSetup import * 
+from future_diffusion.disco import * 
 
 import torch
 import cv2
@@ -241,3 +242,73 @@ def resample(input, size, align_corners=True):
 
     input = input.reshape([n, c, h, w])
     return F.interpolate(input, size, mode='bicubic', align_corners=align_corners)
+  
+  
+def save_settings(args):
+  setting_list = {
+    'text_prompts': args.text_prompts,
+    'image_prompts': args.image_prompts,
+    'clip_guidance_scale': args.clip_guidance_scale,
+    'tv_scale': args.tv_scale,
+    'range_scale': args.range_scale,
+    'sat_scale': args.sat_scale,
+    # 'cutn': cutn,
+    'cutn_batches': args.cutn_batches,
+    'max_frames': args.max_frames,
+    'interp_spline': args.interp_spline,
+    # 'rotation_per_frame': rotation_per_frame,
+    'init_image': args.init_image,
+    'init_scale': args.init_scale,
+    'skip_steps': args.skip_steps,
+    # 'zoom_per_frame': zoom_per_frame,
+    'frames_scale': args.frames_scale,
+    'frames_skip_steps': frames_skip_steps,
+    'perlin_init': args.perlin_init,
+    'perlin_mode': args.perlin_mode,
+    'skip_augs': args.skip_augs,
+    'randomize_class': args.randomize_class,
+    'clip_denoised': args.clip_denoised,
+    'clamp_grad': args.clamp_grad,
+    'clamp_max': args.clamp_max,
+    'seed': args.seed,
+    'fuzzy_prompt': args.fuzzy_prompt,
+    'rand_mag': args.rand_mag,
+    'eta': args.eta,
+    'width': args.width_height[0],
+    'height': args.width_height[1],
+    'diffusion_model': diffusion_model,
+    'use_secondary_model': use_secondary_model,
+    'steps': args.steps,
+    'diffusion_steps': args.diffusion_steps,
+    'diffusion_sampling_mode': args.diffusion_sampling_mode,
+    'ViTB32': ViTB32,
+    'ViTB16': ViTB16,
+    'ViTL14': ViTL14,
+    'RN101': RN101,
+    'RN50': RN50,
+    'RN50x4': RN50x4,
+    'RN50x16': RN50x16,
+    'RN50x64': RN50x64,
+    'cut_overview': str(args.cut_overview),
+    'cut_innercut': str(args.cut_innercut),
+    'cut_ic_pow': args.cut_ic_pow,
+    'cut_icgray_p': str(args.cut_icgray_p),
+    'key_frames': args.key_frames,
+    'max_frames': args.max_frames,
+    'midas_depth_model': args.midas_depth_model,
+    'midas_weight': args.midas_weight,
+    'near_plane': args.near_plane,
+    'far_plane': args.far_plane,
+    'fov': args.fov,
+    'padding_mode': args.padding_mode,
+    'sampling_mode': args.sampling_mode,
+    'video_init_path':args.video_init_path,
+    'extract_nth_frame':args.extract_nth_frame,
+    'video_init_seed_continuity': args.video_init_seed_continuity,
+    'turbo_mode':turbo_mode,
+    'turbo_steps':turbo_steps,
+    'turbo_preroll':turbo_preroll,
+  }
+  # print('Settings:', setting_list)
+  with open(f"{batchFolder}/{batch_name}({args.batchNum})_settings.txt", "w+") as f:   #save settings
+    json.dump(setting_list, f, ensure_ascii=False, indent=4)
