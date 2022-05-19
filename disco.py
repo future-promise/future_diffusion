@@ -30,21 +30,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 from future_diffusion.DiscoUtils import *
 from future_diffusion.Cutouts import *
 # MakeCutouts, MakeCutoutsDango
-
-def spherical_dist_loss(x, y):
-    x = F.normalize(x, dim=-1)
-    y = F.normalize(y, dim=-1)
-    return (x - y).norm(dim=-1).div(2).arcsin().pow(2).mul(2)     
-
-def tv_loss(input):
-    """L2 total variation loss, as in Mahendran et al."""
-    input = F.pad(input, (0, 1, 0, 1), 'replicate')
-    x_diff = input[..., :-1, 1:] - input[..., :-1, :-1]
-    y_diff = input[..., 1:, :-1] - input[..., :-1, :-1]
-    return (x_diff**2 + y_diff**2).mean([1, 2, 3])
-
-def range_loss(input):
-    return (input - input.clamp(-1, 1)).pow(2).mean([1, 2, 3])
+from future_diffusion.Loss import *
 
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
