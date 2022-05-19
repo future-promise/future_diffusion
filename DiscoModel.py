@@ -44,7 +44,10 @@ import time
 from omegaconf import OmegaConf
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
+import GPUtil
+from pynvml import *
 
+nvmlInit()
 
 class DiscoModel():
     def __init__(self):
