@@ -706,17 +706,17 @@ def do_run(args):
               x = x.detach().requires_grad_()
               n = x.shape[0]
               if use_secondary_model is True:
-                alpha = torch.tensor(diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
-                sigma = torch.tensor(diffusion.sqrt_one_minus_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
+                alpha = torch.tensor(args.diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
+                sigma = torch.tensor(args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
                 cosine_t = alpha_sigma_to_t(alpha, sigma)
                 out = secondary_model(x, cosine_t[None].repeat([n])).pred
-                fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
+                fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
               else:
                 my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-                out = diffusion.p_mean_variance(model, x, my_t, clip_denoised=False, model_kwargs={'y': y})
-                fac = diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
+                out = args.diffusion.p_mean_variance(args.model, x, my_t, clip_denoised=False, model_kwargs={'y': y})
+                fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
                 x_in = out['pred_xstart'] * fac + x * (1 - fac)
                 x_in_grad = torch.zeros_like(x_in)
               for model_stat in model_stats:
@@ -762,9 +762,9 @@ def do_run(args):
           return grad
   
       if args.diffusion_sampling_mode == 'ddim':
-          sample_fn = diffusion.ddim_sample_loop_progressive
+          sample_fn = args.diffusion.ddim_sample_loop_progressive
       else:
-          sample_fn = diffusion.plms_sample_loop_progressive
+          sample_fn = args.diffusion.plms_sample_loop_progressive
 
 
       image_display = Output()
@@ -778,7 +778,7 @@ def do_run(args):
           display.display(image_display)
           gc.collect()
           torch.cuda.empty_cache()
-          cur_t = diffusion.num_timesteps - skip_steps - 1
+          cur_t = args.diffusion.num_timesteps - skip_steps - 1
           total_steps = cur_t
 
           if perlin_init:
@@ -786,8 +786,8 @@ def do_run(args):
 
           if args.diffusion_sampling_mode == 'ddim':
               samples = sample_fn(
-                  model,
-                  (batch_size, 3, args.side_y, args.side_x),
+                  args.model,
+                  (args.batch_size, 3, args.side_y, args.side_x),
                   clip_denoised=clip_denoised,
                   model_kwargs={},
                   cond_fn=cond_fn,
@@ -799,8 +799,8 @@ def do_run(args):
               )
           else:
               samples = sample_fn(
-                  model,
-                  (batch_size, 3, args.side_y, args.side_x),
+                  args.model,
+                  (args.batch_size, 3, args.side_y, args.side_x),
                   clip_denoised=clip_denoised,
                   model_kwargs={},
                   cond_fn=cond_fn,
@@ -869,6 +869,7 @@ def do_run(args):
           
           plt.plot(np.array(loss_values), 'r')
 
+# remove this i think
 def generate_eye_views(trans_scale,batchFolder,filename,frame_num,midas_model, midas_transform):
    for i in range(2):
       theta = vr_eye_angle * (math.pi/180)
