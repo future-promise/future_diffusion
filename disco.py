@@ -630,10 +630,6 @@ if RN101 is True: clip_models.append(clip.load('RN101', jit=False)[0].eval().req
 normalize = T.Normalize(mean=[0.48145466, 0.4578275, 0.40821073], std=[0.26862954, 0.26130258, 0.27577711])
 lpips_model = lpips.LPIPS(net='vgg').to(device)
 
-"""# 3. Settings"""
-#Make folder for batch
-batchFolder = f'{outDirPath}/{batch_name}'
-createPath(batchFolder)
 
 """### Animation Settings"""
 from future_diffusion.DiscoAnimate import *
