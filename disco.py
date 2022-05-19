@@ -124,7 +124,7 @@ def do_run(args):
                     model_stat["weights"].append(weight)
         
             if image_prompt:
-              model_stat["make_cutouts"] = MakeCutouts(clip_model.visual.input_resolution, cutn, skip_augs=skip_augs) 
+              model_stat["make_cutouts"] = MakeCutouts(clip_model.visual.input_resolution, cutn, skip_augs=args.skip_augs) 
               for prompt in image_prompt:
                   path, weight = parse_prompt(prompt)
                   img = Image.open(fetch(path)).convert('RGB')
@@ -182,7 +182,7 @@ def do_run(args):
                     except:
                         input_resolution=224
 
-                    cuts = MakeCutoutsDango(input_resolution,
+                    cuts = MakeCutoutsDango(input_resolution,args,
                             Overview= args.cut_overview[1000-t_int], 
                             InnerCrop = args.cut_innercut[1000-t_int], IC_Size_Pow=args.cut_ic_pow, IC_Grey_P = args.cut_icgray_p[1000-t_int]
                             )

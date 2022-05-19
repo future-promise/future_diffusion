@@ -1,5 +1,6 @@
 #@title 1.1 Check GPU Status
 from future_diffusion.discoSetup import * 
+from future_diffusion.DiscoUtils import * # remove ?
 
 import torch
 
@@ -57,7 +58,7 @@ cutout_debug = False
 padargs = {}
 
 class MakeCutoutsDango(nn.Module):
-    def __init__(self, cut_size,
+    def __init__(self, cut_size, args,
                  Overview=4, 
                  InnerCrop = 0, IC_Size_Pow=0.5, IC_Grey_P = 0.2
                  ):
@@ -67,6 +68,7 @@ class MakeCutoutsDango(nn.Module):
         self.InnerCrop = InnerCrop
         self.IC_Size_Pow = IC_Size_Pow
         self.IC_Grey_P = IC_Grey_P
+        self.args = args
         self.augs = T.Compose([
             T.RandomHorizontalFlip(p=0.5),
             T.Lambda(lambda x: x + torch.randn_like(x) * 0.01),
@@ -128,5 +130,5 @@ class MakeCutoutsDango(nn.Module):
                 else:
                     TF.to_pil_image(cutouts[-1].clamp(0, 1).squeeze(0)).save("cutout_InnerCrop.jpg",quality=99)
         cutouts = torch.cat(cutouts)
-        if skip_augs is not True: cutouts=self.augs(cutouts)
+        if self.args.skip_augs is not True: cutouts=self.augs(cutouts)
         return cutouts
