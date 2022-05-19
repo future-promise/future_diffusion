@@ -138,7 +138,7 @@ def do_run(args):
               x_is_NaN = False
               x = x.detach().requires_grad_()
               n = x.shape[0]
-              if use_secondary_model is True:
+              if args.use_secondary_model is True:
                 alpha = torch.tensor(args.diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
                 sigma = torch.tensor(args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
                 cosine_t = alpha_sigma_to_t(alpha, sigma)
@@ -173,7 +173,7 @@ def do_run(args):
                     loss_values.append(losses.sum().item()) # log loss, probably shouldn't do per cutn_batch
                     x_in_grad += torch.autograd.grad(losses.sum() * args.clip_guidance_scale, x_in)[0] / args.cutn_batches
               tv_losses = tv_loss(x_in)
-              if use_secondary_model is True:
+              if args.use_secondary_model is True:
                 range_losses = range_loss(out)
               else:
                 range_losses = range_loss(out['pred_xstart'])
@@ -311,7 +311,7 @@ from future_diffusion.SecondaryModel import *
 #@markdown ####**Models Settings:**
 diffusion_model = "512x512_diffusion_uncond_finetune_008100" #@param ["256x256_diffusion_uncond", "512x512_diffusion_uncond_finetune_008100"]
 use_secondary_model = True #@param {type: 'boolean'}
-diffusion_sampling_mode = 'ddim' #@param ['plms','ddim']  
+# diffusion_sampling_mode = 'ddim' #@param ['plms','ddim']  
 
 
 use_checkpoint = True #@param {type: 'boolean'}
@@ -330,7 +330,6 @@ check_model_SHA = False #@param{type:"boolean"}
 from future_diffusion.ModelDownload import download_models
 
 download_models(model_path, diffusion_model, use_secondary_model)
-
 
 if use_secondary_model:
     secondary_model = SecondaryDiffusionImageNet2()

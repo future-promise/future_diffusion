@@ -87,7 +87,7 @@ class DiscoModel():
 
 
         model_default = self.model_config['image_size']
-
+        self.animation_mode = 'None'
         #@markdown ####**Basic Settings:**
         self.batch_name = 'TimeToDisco' #@param{type: 'string'}
         self.steps = 250 #@param [25,50,100,150,250,500,1000]{type: 'raw', allow-input: true}
@@ -310,11 +310,11 @@ class DiscoModel():
           'image_prompts_series':split_prompts(image_prompts) if image_prompts else None,
           'seed': self.seed,
           'display_rate':self.display_rate,
-          'n_batches':self.n_batches if animation_mode == 'None' else 1,
+          'n_batches':self.n_batches if self.animation_mode == 'None' else 1,
           'batch_size':self.batch_size,
           'batch_name': self.batch_name,
           'steps': self.steps,
-          'diffusion_sampling_mode': diffusion_sampling_mode,
+          'diffusion_sampling_mode': self.diffusion_sampling_mode,
           'width_height': [width,height],
           'clip_guidance_scale': clip_guidance_scale,
           'tv_scale': tv_scale,
@@ -328,12 +328,12 @@ class DiscoModel():
           'side_y':(int(height)//64)*64,
           'timestep_respacing': self.timestep_respacing,
           'diffusion_steps': self.diffusion_steps,
-          'animation_mode': animation_mode,
+          'animation_mode': self.animation_mode,
           'video_init_path': video_init_path,
           'extract_nth_frame': extract_nth_frame,
           'video_init_seed_continuity': video_init_seed_continuity,
           'key_frames': key_frames,
-          'max_frames': max_frames if animation_mode != "None" else 1,
+          'max_frames': max_frames if self.animation_mode != "None" else 1,
           'interp_spline': interp_spline,
           'start_frame': start_frame,
           'midas_depth_model': midas_depth_model,
@@ -349,6 +349,7 @@ class DiscoModel():
           'calc_frames_skip_steps': self.calc_frames_skip_steps,
           'text_prompts': self.text_prompts,
           'image_prompts': image_prompts,
+          'use_secondary_model': self.use_secondary_model,
           'cut_overview': eval(self.cut_overview),
           'cut_innercut': eval(self.cut_innercut),
           'cut_ic_pow': self.cut_ic_pow,
