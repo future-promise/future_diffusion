@@ -600,7 +600,7 @@ def range_loss(input):
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
 
-def do_run():
+def do_run(args):
   seed = args.seed
   print(range(args.start_frame, args.max_frames))
 
