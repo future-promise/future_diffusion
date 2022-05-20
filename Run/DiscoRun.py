@@ -123,7 +123,7 @@ def do_run(args):
 
   cur_t = None
   # condition_fn = buildConditionFunction(args, cur_t, model_stats, init, loss_values)
-  print('condition fn ', condition_fn)
+  # print('condition fn ', condition_fn)
   def buildConditionFunction():
     def cond_fn(x, t, y=None):
         with torch.enable_grad():
