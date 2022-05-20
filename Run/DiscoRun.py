@@ -126,7 +126,7 @@ def do_run(args):
   # print('condition fn ', condition_fn)
   cur_t = None
     
-  def buildConditionFunction(cur_t):
+  def buildConditionFunction():
     def cond_fn(x, t, y=None):
         with torch.enable_grad():
             if (cur_t):
@@ -195,7 +195,7 @@ def do_run(args):
         return grad
     return cur_t, cond_fn
 
-  cur_t, condition_fn = buildConditionFunction(cur_t)
+  cur_t, condition_fn = buildConditionFunction()
   
   if args.diffusion_sampling_mode == 'ddim':
       sample_fn = args.diffusion.ddim_sample_loop_progressive
