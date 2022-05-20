@@ -130,7 +130,7 @@ def do_run(args):
     def cond_fn(x, t, y=None):
         with torch.enable_grad():
             if (cur_t):
-              print('cond_fn: cur_t', cur_t.shape)
+              print('cond_fn: cur_t', cur_t)
             else:
               print('cond_fn: no cur_t', cur_t)
             x_is_NaN = False
