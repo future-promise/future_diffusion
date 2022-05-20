@@ -31,6 +31,24 @@ from future_diffusion.SecondaryModel import *
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
 
+def saveImage(args, image, cur_t, j):
+  if args.steps_per_checkpoint is not None:
+    if j % args.steps_per_checkpoint == 0 and j > 0:
+      if args.intermediates_in_subfolder is True:
+        image.save(f'{partialFolder}/{filename}')
+      else:
+        image.save(f'{batchFolder}/{filename}')
+  else:
+    if j in args.intermediate_saves:
+      if args.intermediates_in_subfolder is True:
+        image.save(f'{partialFolder}/{filename}')
+      else:
+        image.save(f'{batchFolder}/{filename}')
+  if cur_t == -1:
+    if True:
+      pass
+    image.save(f'{batchFolder}/{filename}')
+
 def createSeed(seed):
   if seed is not None:
     np.random.seed(seed)
@@ -240,25 +258,6 @@ def do_run(args):
                     image.save('progress.png')
                     # display.clear_output(wait=True)
                     display.display(display.Image('progress.png'))
-                  if args.steps_per_checkpoint is not None:
-                    if j % args.steps_per_checkpoint == 0 and j > 0:
-                      if args.intermediates_in_subfolder is True:
-                        image.save(f'{partialFolder}/{filename}')
-                      else:
-                        image.save(f'{batchFolder}/{filename}')
-                  else:
-                    if j in args.intermediate_saves:
-                      if args.intermediates_in_subfolder is True:
-                        image.save(f'{partialFolder}/{filename}')
-                      else:
-                        image.save(f'{batchFolder}/{filename}')
-                  if cur_t == -1:
-                    if frame_num == 0:
-                      pass
-                      # save_settings(args)
-                    if args.animation_mode != "None":
-                      image.save('prevFrame.png')
-                    image.save(f'{batchFolder}/{filename}')
-
+                  saveImage(args, image, cur_t, j)
       
       plt.plot(np.array(loss_values), 'r')
