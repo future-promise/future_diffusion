@@ -66,14 +66,6 @@ def do_run(args):
   else:
     frame_prompt = []
   
-  print('image prompts', args.image_prompts_series)
-  if args.image_prompts_series is not None and frame_num >= len(args.image_prompts_series):
-    image_prompt = args.image_prompts_series[-1]
-  elif args.image_prompts_series is not None:
-    image_prompt = args.image_prompts_series[frame_num]
-  else:
-    image_prompt = []
-
   print(f'Frame {frame_num} Prompt: {frame_prompt}')
 
   model_stats = []
@@ -87,22 +79,7 @@ def do_run(args):
             txt = clip_model.encode_text(clip.tokenize(prompt).to(device)).float()
             model_stat["target_embeds"].append(txt)
             model_stat["weights"].append(weight)
-        print('is image prompt', image_prompt)
-        if image_prompt:
-          model_stat["make_cutouts"] = MakeCutouts(clip_model.visual.input_resolution, cutn, skip_augs=args.skip_augs) 
-          for prompt in image_prompt:
-              path, weight = parse_prompt(prompt)
-              img = Image.open(fetch(path)).convert('RGB')
-              img = TF.resize(img, min(side_x, side_y, *img.size), T.InterpolationMode.LANCZOS)
-              batch = model_stat["make_cutouts"](TF.to_tensor(img).to(device).unsqueeze(0).mul(2).sub(1))
-              embed = clip_model.encode_image(normalize(batch)).float()
-              if fuzzy_prompt:
-                  for i in range(25):
-                      model_stat["target_embeds"].append((embed + torch.randn(embed.shape).cuda() * rand_mag).clamp(0,1))
-                      weights.extend([weight / cutn] * cutn)
-              else:
-                  model_stat["target_embeds"].append(embed)
-                  model_stat["weights"].extend([weight / cutn] * cutn)
+
     
         model_stat["target_embeds"] = torch.cat(model_stat["target_embeds"])
         model_stat["weights"] = torch.tensor(model_stat["weights"], device=device)
