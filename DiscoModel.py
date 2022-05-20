@@ -383,30 +383,14 @@ class DiscoModel():
         gc.collect()
         torch.cuda.empty_cache()
 
-        print(f"Running model with width: {self.args.width_height[0]} and height {self.args.width_height[0]}")
-
-        try:
-          print("About to run model..")
-          do_run(self.args)
-          print("Setting is busy to false!")
-          self.isBusy = False
-          res = subprocess.check_output(["nvidia-smi",  "-L"])
-          print(res)
-        except Exception as e:
-            self.showUtilizationGPU()
-            self.isBusy = False
-            print(e)
-            traceback.print_exc()
-            gc.collect()
-            torch.cuda.empty_cache()
-            res = subprocess.check_output(["nvidia-smi",  "-L"])
-            print(res)
-
-        finally:
-            self.showUtilizationGPU()
-            self.isBusy = False
-            print('Seed used:', self.seed)
-            gc.collect()
-            torch.cuda.empty_cache()
-            res = subprocess.check_output(["nvidia-smi",  "-L"])
-            print(res)
+        print(f"Running model with width: {self.args.width_height[0]} and height {self.args.width_height[0]}")      
+        print("About to run model..")
+        do_run(self.args)
+        print("Setting is busy to false!")
+        self.showUtilizationGPU()
+        self.isBusy = False
+        print('Seed used:', self.seed)
+        gc.collect()
+        torch.cuda.empty_cache()
+        res = subprocess.check_output(["nvidia-smi",  "-L"])
+        print(res)
