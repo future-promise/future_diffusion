@@ -34,9 +34,9 @@ def do_run(args):
   for frame_num in range(args.start_frame, args.max_frames):
       if stop_on_next_loop:
         break
-      print("frame num", frame_num)
       
       display.clear_output(wait=True)
+      print("frame num", frame_num)
 
 
       # Inits if not video frames
