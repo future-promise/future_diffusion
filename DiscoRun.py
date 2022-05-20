@@ -31,9 +31,16 @@ from future_diffusion.SecondaryModel import *
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
 
+def createSeed(seed):
+  if seed is not None:
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
 
 def do_run(args):
-  seed = args.seed
+  createSeed(args.seed)
   print('range boi', range(args.start_frame, args.max_frames))
   # frame loop is for animation, i removed
   frame_num = 0
@@ -49,13 +56,6 @@ def do_run(args):
 
 
   loss_values = []
-
-  if seed is not None:
-      np.random.seed(seed)
-      random.seed(seed)
-      torch.manual_seed(seed)
-      torch.cuda.manual_seed_all(seed)
-      torch.backends.cudnn.deterministic = True
 
   target_embeds, weights = [], []
   
