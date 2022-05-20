@@ -58,25 +58,23 @@ def createSeed(seed):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
 
-# removed list:
-# image prompt - useful for video???
-# fuzzy prompt
-
-def do_run(args):
-  createSeed(args.seed)
-  frame_num = 0
-  # display.clear_output(wait=True)
-
+def getInitImage(args):
   if args.init_image in ['','none', 'None', 'NONE']:
     init_image = None
   else:
     init_image = args.init_image
-  skip_steps = args.skip_steps
 
+  init = None
+  if init_image is not None:
+      init = Image.open(fetch(init_image)).convert('RGB')
+      init = init.resize((args.side_x, args.side_y), Image.LANCZOS)
+      init = TF.to_tensor(init).to(device).unsqueeze(0).mul(2).sub(1)
 
-  loss_values = []
+  return init
+
+def createModelStats(args, frame_num = 0):
   target_embeds, weights = [], []
-  
+
   if args.prompts_series is not None and frame_num >= len(args.prompts_series):
     frame_prompt = args.prompts_series[-1]
   elif args.prompts_series is not None:
@@ -88,29 +86,39 @@ def do_run(args):
 
   model_stats = []
   for clip_model in args.clip_models:
-        cutn = 16
-        model_stat = {"clip_model":None,"target_embeds":[],"make_cutouts":None,"weights":[]}
-        model_stat["clip_model"] = clip_model
-        
-        for prompt in frame_prompt:
-            txt, weight = parse_prompt(prompt)
-            txt = clip_model.encode_text(clip.tokenize(prompt).to(device)).float()
-            model_stat["target_embeds"].append(txt)
-            model_stat["weights"].append(weight)
-
+    cutn = 16
+    model_stat = {"clip_model":None,"target_embeds":[],"make_cutouts":None,"weights":[]}
+    model_stat["clip_model"] = clip_model
     
-        model_stat["target_embeds"] = torch.cat(model_stat["target_embeds"])
-        model_stat["weights"] = torch.tensor(model_stat["weights"], device=device)
-        if model_stat["weights"].sum().abs() < 1e-3:
-            raise RuntimeError('The weights must not sum to 0.')
-        model_stat["weights"] /= model_stat["weights"].sum().abs()
-        model_stats.append(model_stat)
+    for prompt in frame_prompt:
+        txt, weight = parse_prompt(prompt)
+        txt = clip_model.encode_text(clip.tokenize(prompt).to(device)).float()
+        model_stat["target_embeds"].append(txt)
+        model_stat["weights"].append(weight)
 
-  init = None
-  if init_image is not None:
-      init = Image.open(fetch(init_image)).convert('RGB')
-      init = init.resize((args.side_x, args.side_y), Image.LANCZOS)
-      init = TF.to_tensor(init).to(device).unsqueeze(0).mul(2).sub(1)
+
+    model_stat["target_embeds"] = torch.cat(model_stat["target_embeds"])
+    model_stat["weights"] = torch.tensor(model_stat["weights"], device=device)
+    if model_stat["weights"].sum().abs() < 1e-3:
+        raise RuntimeError('The weights must not sum to 0.')
+    model_stat["weights"] /= model_stat["weights"].sum().abs()
+    model_stats.append(model_stat)
+
+  return model_stats
+
+
+# removed list:
+# image prompt - useful for video???
+# fuzzy prompt
+
+def do_run(args):
+  createSeed(args.seed)
+  frame_num = 0
+  # display.clear_output(wait=True)
+
+  init = getInitImage(args)
+  loss_values = []
+  model_stats = createModelStats(args)
 
   cur_t = None
 
@@ -192,7 +200,7 @@ def do_run(args):
       display.display(image_display)
       gc.collect()
       torch.cuda.empty_cache()
-      cur_t = args.diffusion.num_timesteps - skip_steps - 1
+      cur_t = args.diffusion.num_timesteps - args.skip_steps - 1
       total_steps = cur_t
 
       if args.perlin_init:
@@ -206,7 +214,7 @@ def do_run(args):
               model_kwargs={},
               cond_fn=cond_fn,
               progress=True,
-              skip_timesteps=skip_steps,
+              skip_timesteps=args.skip_steps,
               init_image=init,
               randomize_class=args.randomize_class,
               eta=args.eta,
@@ -219,7 +227,7 @@ def do_run(args):
               model_kwargs={},
               cond_fn=cond_fn,
               progress=True,
-              skip_timesteps=skip_steps,
+              skip_timesteps=args.skip_steps,
               init_image=init,
               randomize_class=args.randomize_class,
               order=2,
