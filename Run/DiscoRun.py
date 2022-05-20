@@ -27,6 +27,7 @@ from future_diffusion.DiscoUtils import *
 from future_diffusion.Cutouts import *
 from future_diffusion.Loss import *
 from future_diffusion.SecondaryModel import *
+from future_diffusion.Run.DiscoCondition import *
 
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
@@ -121,6 +122,7 @@ def do_run(args):
   model_stats = createModelStats(args)
 
   cur_t = None
+  condition_fn = buildConditionFunction(args, cur_t, model_stats, init, loss_values)
 
   def cond_fn(x, t, y=None):
       with torch.enable_grad():
