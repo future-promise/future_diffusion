@@ -128,12 +128,11 @@ def do_run(args):
     
   def buildConditionFunction(cur_t):
     def cond_fn(x, t, y=None):
-        if (cur_t):
-          print('cond_fn: cur_t', cur_t.shape)
-        else:
-          print('cond_fn: no cur_t', cur_t)
-          
         with torch.enable_grad():
+            if (cur_t):
+              print('cond_fn: cur_t', cur_t.shape)
+            else:
+              print('cond_fn: no cur_t', cur_t)
             x_is_NaN = False
             x = x.detach().requires_grad_()
             n = x.shape[0]
