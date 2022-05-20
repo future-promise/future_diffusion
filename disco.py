@@ -70,4 +70,4 @@ lpips_model = lpips.LPIPS(net='vgg').to(device)
 """### Animation Settings"""
 from future_diffusion.DiscoAnimate import *
 
-from future_diffusion.DiscoRun import *
+from future_diffusion.Run.DiscoRun import *
