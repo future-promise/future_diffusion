@@ -118,6 +118,7 @@ def buildConditionFunction(args, cur_t, model_stats, init, loss_values):
             alpha = torch.tensor(args.diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
             sigma = torch.tensor(args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
             cosine_t = alpha_sigma_to_t(alpha, sigma)
+            print('secondary model params', x, cosine_t[None].repeat([n]))
             out = secondary_model(x, cosine_t[None].repeat([n])).pred
             fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
             x_in = out * fac + x * (1 - fac)
