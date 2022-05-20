@@ -140,8 +140,6 @@ def do_run(args):
               alpha = torch.tensor(args.diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
               sigma = torch.tensor(args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
               cosine_t = alpha_sigma_to_t(alpha, sigma)
-              print('secondary model params', x.shape, n)
-              print('secondary model params 2',cosine_t[None].repeat([n]))
               out = secondary_model(x, cosine_t[None].repeat([n])).pred
               fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
               x_in = out * fac + x * (1 - fac)
@@ -196,7 +194,7 @@ def do_run(args):
     return cur_t, cond_fn
 
   cur_t, condition_fn = buildConditionFunction()
-  
+  print('outside cur_t', cur_t)
   if args.diffusion_sampling_mode == 'ddim':
       sample_fn = args.diffusion.ddim_sample_loop_progressive
   else:
