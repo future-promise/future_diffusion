@@ -30,7 +30,7 @@ TRANSLATION_SCALE = 1.0/200.0
 def do_run(args):
   seed = args.seed
   print('range boi', range(args.start_frame, args.max_frames))
-
+  # frame loop is for animation, i removed
   for frame_num in range(args.start_frame, args.max_frames):
       if stop_on_next_loop:
         break
