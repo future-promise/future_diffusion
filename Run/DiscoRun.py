@@ -122,11 +122,12 @@ def do_run(args):
   loss_values = []
   model_stats = createModelStats(args)
 
-  cur_t = None
   # condition_fn = buildConditionFunction(args, cur_t, model_stats, init, loss_values)
   # print('condition fn ', condition_fn)
 
   def buildConditionFunction():
+    cur_t = None
+
     def cond_fn(x, t, y=None):
         with torch.enable_grad():
             x_is_NaN = False
@@ -189,9 +190,9 @@ def do_run(args):
             magnitude = grad.square().mean().sqrt()
             return grad * magnitude.clamp(max=args.clamp_max) / magnitude  #min=-0.02, min=-clamp_max, 
         return grad
-    return cond_fn
+    return cur_t, cond_fn
 
-  condition_fn = buildConditionFunction()
+  cur_t, condition_fn = buildConditionFunction()
   
   if args.diffusion_sampling_mode == 'ddim':
       sample_fn = args.diffusion.ddim_sample_loop_progressive
