@@ -25,6 +25,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 from future_diffusion.DiscoUtils import *
 from future_diffusion.Cutouts import *
 from future_diffusion.Loss import *
+from future_diffusion.SecondaryModel import *
 
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
