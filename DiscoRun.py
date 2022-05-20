@@ -3,6 +3,7 @@
 
 #@title 1.1 Check GPU Status
 from future_diffusion.DiscoSetup import * 
+from future_diffusion.disco import * 
 
 import torch
 import gc

@@ -27,6 +27,7 @@ from future_diffusion.Loss import *
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
 
+from future_diffusion.DiscoRun import *
 
 #@title 1.6 Define the secondary diffusion model
 
@@ -69,5 +70,3 @@ lpips_model = lpips.LPIPS(net='vgg').to(device)
 
 """### Animation Settings"""
 from future_diffusion.DiscoAnimate import *
-
-from future_diffusion.DiscoRun import *
