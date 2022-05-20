@@ -187,7 +187,7 @@ def do_run(args):
         return grad
     return cond_fn
   
-  condition_fn = buildConditionFunction(args, cur_t, model_stats, init, loss_values)
+  condition_fn = buildConditionFunction()
   
   if args.diffusion_sampling_mode == 'ddim':
       sample_fn = args.diffusion.ddim_sample_loop_progressive
