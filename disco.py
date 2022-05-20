@@ -32,8 +32,6 @@ TRANSLATION_SCALE = 1.0/200.0
 
 from future_diffusion.SecondaryModel import *
 
-from future_diffusion.DiscoRun import *
-
 """# 2. Diffusion and CLIP model settings"""
 
 #@markdown ####**Models Settings:**
@@ -71,3 +69,5 @@ lpips_model = lpips.LPIPS(net='vgg').to(device)
 
 """### Animation Settings"""
 from future_diffusion.DiscoAnimate import *
+
+from future_diffusion.DiscoRun import *
