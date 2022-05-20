@@ -34,29 +34,29 @@ TRANSLATION_SCALE = 1.0/200.0
 def createSeed(seed):
   if seed is not None:
     np.random.seed(seed)
+    print('seed', seed)
     random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
 
+# removed list:
+# image prompt - useful for video???
+# fuzzy prompt
+
 def do_run(args):
   createSeed(args.seed)
-  print('range boi', range(args.start_frame, args.max_frames))
-  # frame loop is for animation, i removed
   frame_num = 0
   # display.clear_output(wait=True)
 
-  # Inits if not video frames
-  if args.animation_mode != "Video Input":
-    if args.init_image in ['','none', 'None', 'NONE']:
-      init_image = None
-    else:
-      init_image = args.init_image
-    skip_steps = args.skip_steps
+  if args.init_image in ['','none', 'None', 'NONE']:
+    init_image = None
+  else:
+    init_image = args.init_image
+  skip_steps = args.skip_steps
 
 
   loss_values = []
-
   target_embeds, weights = [], []
   
   if args.prompts_series is not None and frame_num >= len(args.prompts_series):
@@ -66,7 +66,7 @@ def do_run(args):
   else:
     frame_prompt = []
   
-  print(args.image_prompts_series)
+  print('image prompts', args.image_prompts_series)
   if args.image_prompts_series is not None and frame_num >= len(args.image_prompts_series):
     image_prompt = args.image_prompts_series[-1]
   elif args.image_prompts_series is not None:
@@ -82,19 +82,12 @@ def do_run(args):
         model_stat = {"clip_model":None,"target_embeds":[],"make_cutouts":None,"weights":[]}
         model_stat["clip_model"] = clip_model
         
-        
         for prompt in frame_prompt:
             txt, weight = parse_prompt(prompt)
             txt = clip_model.encode_text(clip.tokenize(prompt).to(device)).float()
-            
-            if args.fuzzy_prompt:
-                for i in range(25):
-                    model_stat["target_embeds"].append((txt + torch.randn(txt.shape).cuda() * args.rand_mag).clamp(0,1))
-                    model_stat["weights"].append(weight)
-            else:
-                model_stat["target_embeds"].append(txt)
-                model_stat["weights"].append(weight)
-    
+            model_stat["target_embeds"].append(txt)
+            model_stat["weights"].append(weight)
+        print('is image prompt', image_prompt)
         if image_prompt:
           model_stat["make_cutouts"] = MakeCutouts(clip_model.visual.input_resolution, cutn, skip_augs=args.skip_augs) 
           for prompt in image_prompt:
