@@ -31,7 +31,7 @@ from future_diffusion.SecondaryModel import *
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
 TRANSLATION_SCALE = 1.0/200.0
 
-def saveImage(args, image, cur_t, j):
+def saveImage(args, image, cur_t, j, filename):
   if args.steps_per_checkpoint is not None:
     if j % args.steps_per_checkpoint == 0 and j > 0:
       if args.intermediates_in_subfolder is True:
@@ -233,7 +233,7 @@ def do_run(args):
               order=2,
           )
       
-      
+      print('samples', samples)
       # with run_display:
       for j, sample in enumerate(samples):    
         cur_t -= 1
@@ -266,6 +266,6 @@ def do_run(args):
                     image.save('progress.png')
                     # display.clear_output(wait=True)
                     display.display(display.Image('progress.png'))
-                  saveImage(args, image, cur_t, j)
+                  saveImage(args, image, cur_t, j, filename)
       
       plt.plot(np.array(loss_values), 'r')
