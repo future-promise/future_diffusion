@@ -35,7 +35,7 @@ def do_run(args):
       if stop_on_next_loop:
         break
       
-      display.clear_output(wait=True)
+      # display.clear_output(wait=True)
       print("frame num", frame_num)
 
 
@@ -196,7 +196,7 @@ def do_run(args):
       image_display = Output()
       for i in range(args.n_batches):
           if args.animation_mode == 'None':
-            display.clear_output(wait=True)
+            # display.clear_output(wait=True)
             batchBar = tqdm(range(args.n_batches), desc ="Batches")
             batchBar.n = i
             batchBar.refresh()
@@ -239,7 +239,6 @@ def do_run(args):
           
           
           # with run_display:
-          # display.clear_output(wait=True)
           for j, sample in enumerate(samples):    
             cur_t -= 1
             intermediateStep = False
@@ -269,7 +268,7 @@ def do_run(args):
                       image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
                       if j % args.display_rate == 0 or cur_t == -1:
                         image.save('progress.png')
-                        display.clear_output(wait=True)
+                        # display.clear_output(wait=True)
                         display.display(display.Image('progress.png'))
                       if args.steps_per_checkpoint is not None:
                         if j % args.steps_per_checkpoint == 0 and j > 0:
@@ -291,8 +290,6 @@ def do_run(args):
                           image.save('prevFrame.png')
                         image.save(f'{batchFolder}/{filename}')
 
-                        # if frame_num != args.max_frames-1:
-                        #   display.clear_output()
           
           plt.plot(np.array(loss_values), 'r')
 
