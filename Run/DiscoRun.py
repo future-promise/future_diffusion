@@ -1,3 +1,6 @@
+
+
+
 #@title 1.1 Check GPU Status
 from future_diffusion.DiscoSetup import * 
 from future_diffusion.disco import * 
@@ -24,7 +27,6 @@ from future_diffusion.DiscoUtils import *
 from future_diffusion.Cutouts import *
 from future_diffusion.Loss import *
 from future_diffusion.SecondaryModel import *
-from future_diffusion.Run.Display import enumerateSamples
 # from future_diffusion.Run.DiscoCondition import *
 
 stop_on_next_loop = False  # Make sure GPU memory doesn't get corrupted from cancelling the run mid-way through, allow a full frame to complete
@@ -70,40 +72,6 @@ def getInitImage(args):
       init = TF.to_tensor(init).to(device).unsqueeze(0).mul(2).sub(1)
 
   return init
-
-def getSamples(args, cond_fn, init):
-  if args.diffusion_sampling_mode == 'ddim':
-      sample_fn = args.diffusion.ddim_sample_loop_progressive
-  else:
-      sample_fn = args.diffusion.plms_sample_loop_progressive
-  
-  if args.diffusion_sampling_mode == 'ddim':
-    samples = sample_fn(
-        args.model,
-        (args.batch_size, 3, args.side_y, args.side_x),
-        clip_denoised=args.clip_denoised,
-        model_kwargs={},
-        cond_fn=cond_fn,
-        progress=True,
-        skip_timesteps=args.skip_steps,
-        init_image=init,
-        randomize_class=args.randomize_class,
-        eta=args.eta,
-    )
-  else:
-      samples = sample_fn(
-          args.model,
-          (args.batch_size, 3, args.side_y, args.side_x),
-          clip_denoised=args.clip_denoised,
-          model_kwargs={},
-          cond_fn=cond_fn,
-          progress=True,
-          skip_timesteps=args.skip_steps,
-          init_image=init,
-          randomize_class=args.randomize_class,
-          order=2,
-      )
-  return samples
 
 def applyModel(args, cur_t, x, n):
   if args.use_secondary_model is True:
@@ -237,6 +205,11 @@ def do_run(args):
 
   cur_t, condition_fn = buildConditionFunction()
   print('outside cur_t', cur_t)
+  if args.diffusion_sampling_mode == 'ddim':
+      sample_fn = args.diffusion.ddim_sample_loop_progressive
+  else:
+      sample_fn = args.diffusion.plms_sample_loop_progressive
+
 
   image_display = Output()
   i = 0
@@ -254,8 +227,66 @@ def do_run(args):
   if args.perlin_init:
       init = regen_perlin()
 
-  samples = getSamples(args, condition_fn, init)
-
-  enumerateSamples(samples, args, cur_t, image_display, total_steps)
+  if args.diffusion_sampling_mode == 'ddim':
+      samples = sample_fn(
+          args.model,
+          (args.batch_size, 3, args.side_y, args.side_x),
+          clip_denoised=args.clip_denoised,
+          model_kwargs={},
+          cond_fn=condition_fn,
+          progress=True,
+          skip_timesteps=args.skip_steps,
+          init_image=init,
+          randomize_class=args.randomize_class,
+          eta=args.eta,
+      )
+  else:
+      samples = sample_fn(
+          args.model,
+          (args.batch_size, 3, args.side_y, args.side_x),
+          clip_denoised=args.clip_denoised,
+          model_kwargs={},
+          cond_fn=condition_fn,
+          progress=True,
+          skip_timesteps=args.skip_steps,
+          init_image=init,
+          randomize_class=args.randomize_class,
+          order=2,
+      )
+  
+  print('samples', samples)
+  # with run_display:
+  for j, sample in enumerate(samples):    
+    cur_t -= 1
+    intermediateStep = False
+    if args.steps_per_checkpoint is not None:
+        if j % args.steps_per_checkpoint == 0 and j > 0:
+          intermediateStep = True
+    elif j in args.intermediate_saves:
+      intermediateStep = True
+    with image_display:
+      if j % args.display_rate == 0 or cur_t == -1 or intermediateStep == True:
+          for k, image in enumerate(sample['pred_xstart']):
+              # tqdm.write(f'Batch {i}, step {j}, output {k}:')
+              current_time = datetime.now().strftime('%y%m%d-%H%M%S_%f')
+              percent = math.ceil(j/total_steps*100)
+              if args.n_batches > 0:
+                #if intermediates are saved to the subfolder, don't append a step or percentage to the name
+                if cur_t == -1 and args.intermediates_in_subfolder is True:
+                  save_num = f'{frame_num:04}' if args.animation_mode != "None" else i
+                  filename = f'{args.batch_name}({args.batchNum})_{save_num}.png'
+                else:
+                  #If we're working with percentages, append it
+                  if args.steps_per_checkpoint is not None:
+                    filename = f'{args.batch_name}({args.batchNum})_{i:04}-{percent:02}%.png'
+                  # Or else, iIf we're working with specific steps, append those
+                  else:
+                    filename = f'{args.batch_name}({args.batchNum})_{i:04}-{j:03}.png'
+              image = TF.to_pil_image(image.add(1).div(2).clamp(0, 1))
+              if j % args.display_rate == 0 or cur_t == -1:
+                image.save('progress.png')
+                # display.clear_output(wait=True)
+                display.display(display.Image('progress.png'))
+              saveImage(args, image, cur_t, j, filename)
   
   plt.plot(np.array(loss_values), 'r')
