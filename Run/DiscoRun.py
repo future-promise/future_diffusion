@@ -75,6 +75,11 @@ def getInitImage(args):
 
 def getSamples(args, cond_fn, init):
   if args.diffusion_sampling_mode == 'ddim':
+      sample_fn = args.diffusion.ddim_sample_loop_progressive
+  else:
+      sample_fn = args.diffusion.plms_sample_loop_progressive
+  
+  if args.diffusion_sampling_mode == 'ddim':
     samples = sample_fn(
         args.model,
         (args.batch_size, 3, args.side_y, args.side_x),
@@ -234,11 +239,6 @@ def do_run(args):
 
   cur_t, condition_fn = buildConditionFunction()
   print('outside cur_t', cur_t)
-  if args.diffusion_sampling_mode == 'ddim':
-      sample_fn = args.diffusion.ddim_sample_loop_progressive
-  else:
-      sample_fn = args.diffusion.plms_sample_loop_progressive
-
 
   image_display = Output()
   i = 0
