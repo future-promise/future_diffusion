@@ -130,6 +130,7 @@ def runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values):
     x_in_grad += torch.autograd.grad(losses.sum() * args.clip_guidance_scale, x_in)[0] / args.cutn_batches
 
 def sumLosses(args,x_in, out, init):
+  tv_losses = tv_loss(x_in)
   if args.use_secondary_model is True:
     range_losses = range_loss(out)
   else:
