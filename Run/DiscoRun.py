@@ -108,7 +108,7 @@ def createModelStats(args, frame_num = 0):
   return model_stats
 
 
-def runModelStat(model_stat, t, args, n, x_in, x_in_grad):
+def runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values):
   for i in range(args.cutn_batches):
     t_int = int(t.item())+1 #errors on last step without +1, need to find source
     #when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
@@ -167,7 +167,7 @@ def do_run(args):
               x_in = out['pred_xstart'] * fac + x * (1 - fac)
               x_in_grad = torch.zeros_like(x_in)
             for model_stat in model_stats:
-              runModelStat(model_stat, t, args, n, x_in, x_in_grad)
+              runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values)
 
             tv_losses = tv_loss(x_in)
             if args.use_secondary_model is True:
