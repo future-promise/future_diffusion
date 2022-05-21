@@ -129,10 +129,6 @@ def do_run(args):
   def buildConditionFunction():
     def cond_fn(x, t, y=None):
         with torch.enable_grad():
-            if (cur_t):
-              print('cond_fn: cur_t', cur_t)
-            else:
-              print('cond_fn: no cur_t', cur_t)
             x_is_NaN = False
             x = x.detach().requires_grad_()
             n = x.shape[0]
@@ -208,7 +204,6 @@ def do_run(args):
         batchBar = tqdm(range(args.n_batches), desc ="Batches")
         batchBar.n = i
         batchBar.refresh()
-      print('')
       display.display(image_display)
       gc.collect()
       torch.cuda.empty_cache()
@@ -249,7 +244,6 @@ def do_run(args):
       # with run_display:
       for j, sample in enumerate(samples):    
         cur_t -= 1
-        print('sample enumerate', cur_t)
         intermediateStep = False
         if args.steps_per_checkpoint is not None:
             if j % args.steps_per_checkpoint == 0 and j > 0:
