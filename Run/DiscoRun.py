@@ -108,6 +108,26 @@ def createModelStats(args, frame_num = 0):
   return model_stats
 
 
+def runModelStat(model_stat, t, args, n, x_in, x_in_grad):
+  for i in range(args.cutn_batches):
+    t_int = int(t.item())+1 #errors on last step without +1, need to find source
+    #when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
+    try:
+        input_resolution=model_stat["clip_model"].visual.input_resolution
+    except:
+        input_resolution=224
+
+    cuts = MakeCutoutsDango(input_resolution,args,
+            Overview= args.cut_overview[1000-t_int], 
+            InnerCrop = args.cut_innercut[1000-t_int], IC_Size_Pow=args.cut_ic_pow, IC_Grey_P = args.cut_icgray_p[1000-t_int]
+            )
+    clip_in = normalize(cuts(x_in.add(1).div(2)))
+    image_embeds = model_stat["clip_model"].encode_image(clip_in).float()
+    dists = spherical_dist_loss(image_embeds.unsqueeze(1), model_stat["target_embeds"].unsqueeze(0))
+    dists = dists.view([args.cut_overview[1000-t_int]+args.cut_innercut[1000-t_int], n, -1])
+    losses = dists.mul(model_stat["weights"]).sum(2).mean(0)
+    loss_values.append(losses.sum().item()) # log loss, probably shouldn't do per cutn_batch
+    x_in_grad += torch.autograd.grad(losses.sum() * args.clip_guidance_scale, x_in)[0] / args.cutn_batches
 
 
 # removed list:
@@ -147,25 +167,8 @@ def do_run(args):
               x_in = out['pred_xstart'] * fac + x * (1 - fac)
               x_in_grad = torch.zeros_like(x_in)
             for model_stat in model_stats:
-              for i in range(args.cutn_batches):
-                  t_int = int(t.item())+1 #errors on last step without +1, need to find source
-                  #when using SLIP Base model the dimensions need to be hard coded to avoid AttributeError: 'VisionTransformer' object has no attribute 'input_resolution'
-                  try:
-                      input_resolution=model_stat["clip_model"].visual.input_resolution
-                  except:
-                      input_resolution=224
+              runModelStat(model_stat, t, args, n, x_in, x_in_grad)
 
-                  cuts = MakeCutoutsDango(input_resolution,args,
-                          Overview= args.cut_overview[1000-t_int], 
-                          InnerCrop = args.cut_innercut[1000-t_int], IC_Size_Pow=args.cut_ic_pow, IC_Grey_P = args.cut_icgray_p[1000-t_int]
-                          )
-                  clip_in = normalize(cuts(x_in.add(1).div(2)))
-                  image_embeds = model_stat["clip_model"].encode_image(clip_in).float()
-                  dists = spherical_dist_loss(image_embeds.unsqueeze(1), model_stat["target_embeds"].unsqueeze(0))
-                  dists = dists.view([args.cut_overview[1000-t_int]+args.cut_innercut[1000-t_int], n, -1])
-                  losses = dists.mul(model_stat["weights"]).sum(2).mean(0)
-                  loss_values.append(losses.sum().item()) # log loss, probably shouldn't do per cutn_batch
-                  x_in_grad += torch.autograd.grad(losses.sum() * args.clip_guidance_scale, x_in)[0] / args.cutn_batches
             tv_losses = tv_loss(x_in)
             if args.use_secondary_model is True:
               range_losses = range_loss(out)
@@ -180,7 +183,6 @@ def do_run(args):
             if torch.isnan(x_in_grad).any()==False:
                 grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
             else:
-              # print("NaN'd")
               x_is_NaN = True
               grad = torch.zeros_like(x)
         if args.clamp_grad and x_is_NaN == False:
