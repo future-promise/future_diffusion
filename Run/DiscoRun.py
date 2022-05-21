@@ -249,6 +249,7 @@ def do_run(args):
       # with run_display:
       for j, sample in enumerate(samples):    
         cur_t -= 1
+        print('sample enumerate', cur_t)
         intermediateStep = False
         if args.steps_per_checkpoint is not None:
             if j % args.steps_per_checkpoint == 0 and j > 0:
