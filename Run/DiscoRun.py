@@ -179,8 +179,10 @@ def do_run(args):
               fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
               x_in = out['pred_xstart'] * fac + x * (1 - fac)
               x_in_grad = torch.zeros_like(x_in)
+            model_stat_i = 0
             for model_stat in model_stats:
-              print('model stat loop')
+              print('model stat loop', model_stat_i)
+              model_stat_i += 1
               runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values)
 
             loss = sumLosses(args, x_in, out, init)
