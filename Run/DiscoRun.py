@@ -73,6 +73,35 @@ def getInitImage(args):
 
   return init
 
+def getSamples(args, cond_fn, init):
+  if args.diffusion_sampling_mode == 'ddim':
+    samples = sample_fn(
+        args.model,
+        (args.batch_size, 3, args.side_y, args.side_x),
+        clip_denoised=args.clip_denoised,
+        model_kwargs={},
+        cond_fn=cond_fn,
+        progress=True,
+        skip_timesteps=args.skip_steps,
+        init_image=init,
+        randomize_class=args.randomize_class,
+        eta=args.eta,
+    )
+  else:
+      samples = sample_fn(
+          args.model,
+          (args.batch_size, 3, args.side_y, args.side_x),
+          clip_denoised=args.clip_denoised,
+          model_kwargs={},
+          cond_fn=cond_fn,
+          progress=True,
+          skip_timesteps=args.skip_steps,
+          init_image=init,
+          randomize_class=args.randomize_class,
+          order=2,
+      )
+  return samples
+
 def applyModel(args, cur_t, x, n):
   if args.use_secondary_model is True:
     alpha = torch.tensor(args.diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
@@ -227,33 +256,9 @@ def do_run(args):
   if args.perlin_init:
       init = regen_perlin()
 
-  if args.diffusion_sampling_mode == 'ddim':
-      samples = sample_fn(
-          args.model,
-          (args.batch_size, 3, args.side_y, args.side_x),
-          clip_denoised=args.clip_denoised,
-          model_kwargs={},
-          cond_fn=condition_fn,
-          progress=True,
-          skip_timesteps=args.skip_steps,
-          init_image=init,
-          randomize_class=args.randomize_class,
-          eta=args.eta,
-      )
-  else:
-      samples = sample_fn(
-          args.model,
-          (args.batch_size, 3, args.side_y, args.side_x),
-          clip_denoised=args.clip_denoised,
-          model_kwargs={},
-          cond_fn=condition_fn,
-          progress=True,
-          skip_timesteps=args.skip_steps,
-          init_image=init,
-          randomize_class=args.randomize_class,
-          order=2,
-      )
-  
+
+  samples = getSamples(args, condition_fn, init)
+
   print('samples', samples)
   # with run_display:
   for j, sample in enumerate(samples):    
