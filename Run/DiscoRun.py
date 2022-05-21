@@ -256,11 +256,8 @@ def do_run(args):
   if args.perlin_init:
       init = regen_perlin()
 
-
   samples = getSamples(args, condition_fn, init)
 
-  print('samples extracted', samples)
-  # with run_display:
   for j, sample in enumerate(samples):    
     cur_t -= 1
     intermediateStep = False
@@ -273,6 +270,7 @@ def do_run(args):
       if j % args.display_rate == 0 or cur_t == -1 or intermediateStep == True:
           for k, image in enumerate(sample['pred_xstart']):
               # tqdm.write(f'Batch {i}, step {j}, output {k}:')
+              print('what does this loop do', j)
               current_time = datetime.now().strftime('%y%m%d-%H%M%S_%f')
               percent = math.ceil(j/total_steps*100)
               if args.n_batches > 0:
