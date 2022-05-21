@@ -32,7 +32,7 @@ def saveImage(args, image, cur_t, j, filename):
       pass
     image.save(f'{batchFolder}/{filename}')
     
-def enumerateSamples(samples, args, cur_t, image_display, total_steps, frame_num = 0):
+def enumerateSamples(samples, args, cur_t, image_display, total_steps, i=0, frame_num = 0):
   for j, sample in enumerate(samples):    
     cur_t -= 1
     intermediateStep = False
