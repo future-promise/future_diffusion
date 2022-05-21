@@ -259,7 +259,7 @@ def do_run(args):
 
   samples = getSamples(args, condition_fn, init)
 
-  print('samples', samples)
+  print('samples extracted', samples)
   # with run_display:
   for j, sample in enumerate(samples):    
     cur_t -= 1
