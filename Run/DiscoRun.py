@@ -180,9 +180,8 @@ def do_run(args):
               x_in = out['pred_xstart'] * fac + x * (1 - fac)
               x_in_grad = torch.zeros_like(x_in)
             model_stat_i = 0
+            print('modelStats', len(model_stats))
             for model_stat in model_stats:
-              print('model stat loop', model_stat_i)
-              model_stat_i += 1
               runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values)
 
             loss = sumLosses(args, x_in, out, init)
