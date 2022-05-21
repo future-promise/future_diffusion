@@ -73,6 +73,23 @@ def getInitImage(args):
 
   return init
 
+def applyModel(args, cur_t, x, n):
+  if args.use_secondary_model is True:
+    alpha = torch.tensor(args.diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
+    sigma = torch.tensor(args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
+    cosine_t = alpha_sigma_to_t(alpha, sigma)
+    out = secondary_model(x, cosine_t[None].repeat([n])).pred
+    fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
+    x_in = out * fac + x * (1 - fac)
+    x_in_grad = torch.zeros_like(x_in)
+  else:
+    my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
+    out = args.diffusion.p_mean_variance(args.model, x, my_t, clip_denoised=False, model_kwargs={'y': y})
+    fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
+    x_in = out['pred_xstart'] * fac + x * (1 - fac)
+    x_in_grad = torch.zeros_like(x_in)
+  return out, x_in, x_in_grad
+
 def createModelStats(args, frame_num = 0):
   target_embeds, weights = [], []
 
@@ -165,22 +182,10 @@ def do_run(args):
             x_is_NaN = False
             x = x.detach().requires_grad_()
             n = x.shape[0]
-            if args.use_secondary_model is True:
-              alpha = torch.tensor(args.diffusion.sqrt_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
-              sigma = torch.tensor(args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t], device=device, dtype=torch.float32)
-              cosine_t = alpha_sigma_to_t(alpha, sigma)
-              out = secondary_model(x, cosine_t[None].repeat([n])).pred
-              fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-              x_in = out * fac + x * (1 - fac)
-              x_in_grad = torch.zeros_like(x_in)
-            else:
-              my_t = torch.ones([n], device=device, dtype=torch.long) * cur_t
-              out = args.diffusion.p_mean_variance(args.model, x, my_t, clip_denoised=False, model_kwargs={'y': y})
-              fac = args.diffusion.sqrt_one_minus_alphas_cumprod[cur_t]
-              x_in = out['pred_xstart'] * fac + x * (1 - fac)
-              x_in_grad = torch.zeros_like(x_in)
-            model_stat_i = 0
-            print('modelStats', len(model_stats))
+
+            out, x_in, x_in_grad = applyModel(args, cur_t, x, n)
+
+            # only has length 1
             for model_stat in model_stats:
               runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values)
 
