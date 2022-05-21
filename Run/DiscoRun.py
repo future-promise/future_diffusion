@@ -129,6 +129,18 @@ def runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values):
     loss_values.append(losses.sum().item()) # log loss, probably shouldn't do per cutn_batch
     x_in_grad += torch.autograd.grad(losses.sum() * args.clip_guidance_scale, x_in)[0] / args.cutn_batches
 
+def sumLosses(args,x_in, out, init):
+  if args.use_secondary_model is True:
+    range_losses = range_loss(out)
+  else:
+    range_losses = range_loss(out['pred_xstart'])
+  sat_losses = torch.abs(x_in - x_in.clamp(min=-1,max=1)).mean()
+  loss = tv_losses.sum() * args.tv_scale + range_losses.sum() * args.range_scale + sat_losses.sum() * args.sat_scale
+  if init is not None and args.init_scale:
+      init_losses = lpips_model(x_in, init)
+      loss = loss + init_losses.sum() * args.init_scale
+  return loss
+
 
 # removed list:
 # image prompt - useful for video???
@@ -169,16 +181,8 @@ def do_run(args):
             for model_stat in model_stats:
               runModelStat(model_stat, t, args, n, x_in, x_in_grad, loss_values)
 
-            tv_losses = tv_loss(x_in)
-            if args.use_secondary_model is True:
-              range_losses = range_loss(out)
-            else:
-              range_losses = range_loss(out['pred_xstart'])
-            sat_losses = torch.abs(x_in - x_in.clamp(min=-1,max=1)).mean()
-            loss = tv_losses.sum() * args.tv_scale + range_losses.sum() * args.range_scale + sat_losses.sum() * args.sat_scale
-            if init is not None and args.init_scale:
-                init_losses = lpips_model(x_in, init)
-                loss = loss + init_losses.sum() * args.init_scale
+            loss = sumLosses(args, x_in, out, init)
+
             x_in_grad += torch.autograd.grad(loss, x_in)[0]
             if torch.isnan(x_in_grad).any()==False:
                 grad = -torch.autograd.grad(x_in, x, x_in_grad)[0]
